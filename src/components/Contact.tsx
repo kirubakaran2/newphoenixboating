@@ -16,11 +16,7 @@ export const Contact = () => {
     
     // Create loading toast
     const toastId = toast.loading('Sending message...', {
-      duration: Infinity, // Keep showing until manually dismissed
-      style: {
-        backgroundColor: 'black',
-        color: 'white'
-      }
+      duration: Infinity // Keep showing until manually dismissed
     });
 
     try {
@@ -37,33 +33,19 @@ export const Contact = () => {
       if (response.ok && data.success) {
         // Update the loading toast to success
         toast.dismiss(toastId);
-        toast.success('Message sent successfully!', {
-          style: {
-            backgroundColor: 'black',
-            color: 'white'
-          }
-        });
+        toast.success('Message sent successfully!');
         setFormData({ name: '', email: '', message: '' });
       } else {
         // Update the loading toast to error with server message if available
         toast.dismiss(toastId);
-        toast.error(data.message || 'Failed to send message. Please try again.', {
-          style: {
-            backgroundColor: 'black', 
-            color: 'white'
-          }
-        });
+        toast.error(data.message || 'Failed to send message. Please try again.');
       }
     } catch (error) {
       console.error('Error:', error);
       // Update the loading toast to error
+      toast.dismiss(toastId); // Correctly dismiss the loading toast
       toast.error('An error occurred. Please try again later.', {
-        id: toastId,
-        duration: 3000,
-        style: {
-          backgroundColor: 'black',
-          color: 'white'
-        }
+        duration: 3000
       });
     }
   };
