@@ -25,6 +25,7 @@ export default function BookingDisplay() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [editingBooking, setEditingBooking] = useState<Booking | null>(null);
+  const [editingEmail, setEditingEmail] = useState<Email | null>(null);
   const [showEmails, setShowEmails] = useState(false);
 
   useEffect(() => {
@@ -58,6 +59,85 @@ export default function BookingDisplay() {
       toast.error('Failed to fetch emails. Please try again later.', {
         id: toastId,
       });
+    }
+  };
+
+  const handleDeleteEmail = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this email?')) return;
+
+    const toastId = toast.loading('Deleting email...');
+    const token = sessionStorage.getItem('jwtToken');
+
+    try {
+      const response = await fetch(`${BASE_URL}/email/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (!response.ok) throw new Error('Failed to delete email');
+      
+      setEmails(emails.filter(email => email._id !== id));
+      toast.success('Email deleted successfully', {
+        id: toastId,
+      });
+    } catch (err) {
+      toast.error('Failed to delete email. Please try again.', {
+        id: toastId,
+      });
+      console.error('Delete error:', err);
+    }
+  };
+
+  const handleEditEmail = (email: Email) => {
+    setEditingEmail({...email});
+    toast.info('Editing email...');
+  };
+
+  const handleUpdateEmail = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+  
+    if (!editingEmail) return;
+
+    const toastId = toast.loading('Updating email...');
+    const token = sessionStorage.getItem('jwtToken');
+  
+    try {
+      const response = await fetch(`${BASE_URL}/email/${editingEmail._id}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: editingEmail.name,
+          email: editingEmail.email,
+          message: editingEmail.message
+        }),
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to update email');
+      }
+  
+      const updatedData = await response.json();
+      setEmails(prevEmails =>
+        prevEmails.map(email =>
+          email._id === editingEmail._id ? updatedData.email : email
+        )
+      );
+  
+      setEditingEmail(null);
+      toast.success('Email updated successfully', {
+        id: toastId,
+      });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to update email. Please try again.', {
+        id: toastId,
+      });
+      console.error('Update error:', err);
     }
   };
 
@@ -191,7 +271,7 @@ export default function BookingDisplay() {
   }
 
   return (
-    <div className="p-4 md:p-6 bg-white rounded-lg shadow-lg">
+    <div className="p-2 md:p-6 bg-white rounded-lg shadow-lg">
       <div className="mb-4 flex justify-end">
         <button
           onClick={fetchEmails}
@@ -205,33 +285,113 @@ export default function BookingDisplay() {
       {showEmails && (
         <div className="mb-8">
           <h3 className="text-xl font-bold mb-4">Emails</h3>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Name</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Email</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Message</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+          <div className="overflow-x-auto -mx-4 sm:mx-0">
+            <div className="inline-block min-w-full align-middle">
+              <div className="overflow-hidden">
+                {/* Mobile view for emails */}
                 {emails.map((email) => (
-                  <tr key={email._id}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{email.name}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{email.email}</td>
-                    <td className="px-6 py-4 text-sm text-gray-500">{email.message}</td>
-                  </tr>
+                  <div key={email._id} className="bg-white p-4 rounded-lg shadow mb-4 border border-gray-200 sm:hidden">
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="font-medium text-gray-900">{email.name}</div>
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => handleEditEmail(email)}
+                          className="text-indigo-600 hover:text-indigo-900 transition-colors"
+                        >
+                          <Pencil className="w-5 h-5" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteEmail(email._id)}
+                          className="text-red-600 hover:text-red-900 transition-colors"
+                        >
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="text-sm text-gray-500 mb-2">{email.email}</div>
+                    <div className="text-sm text-gray-700">{email.message}</div>
+                  </div>
                 ))}
-              </tbody>
-            </table>
+
+                {/* Desktop view for emails */}
+                <table className="min-w-full divide-y divide-gray-200 hidden sm:table">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Name</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Email</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Message</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {emails.map((email) => (
+                      <tr key={email._id} className="hover:bg-gray-50 transition-colors">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{email.name}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{email.email}</td>
+                        <td className="px-6 py-4 text-sm text-gray-500">{email.message}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <div className="flex space-x-3">
+                            <button
+                              onClick={() => handleEditEmail(email)}
+                              className="text-indigo-600 hover:text-indigo-900 transition-colors"
+                            >
+                              <Pencil className="w-5 h-5" />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteEmail(email._id)}
+                              className="text-red-600 hover:text-red-900 transition-colors"
+                            >
+                              <Trash2 className="w-5 h-5" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
       )}
 
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto -mx-4 sm:mx-0">
         <div className="inline-block min-w-full align-middle">
-          <div className="overflow-hidden border border-gray-200 sm:rounded-lg">
-            <table className="min-w-full divide-y divide-gray-200">
+          <div className="overflow-hidden">
+            {/* Mobile view */}
+            {bookings.map((booking) => (
+              <div key={booking._id} className="bg-white p-4 rounded-lg shadow mb-4 border border-gray-200 sm:hidden">
+                <div className="flex justify-between items-start mb-2">
+                  <div className="font-medium text-gray-900">{booking.name}</div>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => handleEdit(booking)}
+                      className="text-indigo-600 hover:text-indigo-900 transition-colors"
+                    >
+                      <Pencil className="w-5 h-5" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(booking._id)}
+                      className="text-red-600 hover:text-red-900 transition-colors"
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+                <div className="text-sm text-gray-500 mb-1">
+                  Phone: {booking.phoneNumber}
+                </div>
+                <div className="text-sm text-gray-500 mb-1">
+                  Date: {new Date(booking.date).toLocaleDateString('en-GB')}
+                </div>
+                <div className="text-sm text-gray-500">
+                  Time: {booking.timeSlot}
+                </div>
+              </div>
+            ))}
+
+            {/* Desktop view */}
+            <table className="min-w-full divide-y divide-gray-200 hidden sm:table">
               <thead className="bg-gray-50">
                 <tr>
                   <th scope="col" className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider md:px-6">Name</th>
@@ -338,6 +498,70 @@ export default function BookingDisplay() {
                   type="button"
                   onClick={() => {
                     setEditingBooking(null);
+                    toast.info('Cancelled editing');
+                  }}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-md transition-colors"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {editingEmail && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4 md:mx-auto">
+            <h2 className="text-xl font-bold mb-6 text-gray-900">Edit Email</h2>
+            <form onSubmit={handleUpdateEmail} className="space-y-5">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                <input
+                  type="text"
+                  value={editingEmail.name}
+                  onChange={(e) => {
+                    setEditingEmail({...editingEmail, name: e.target.value});
+                    toast.info('Updating name...');
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <input
+                  type="email"
+                  value={editingEmail.email}
+                  onChange={(e) => {
+                    setEditingEmail({...editingEmail, email: e.target.value});
+                    toast.info('Updating email...');
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
+                <textarea
+                  value={editingEmail.message}
+                  onChange={(e) => {
+                    setEditingEmail({...editingEmail, message: e.target.value});
+                    toast.info('Updating message...');
+                  }}
+                  rows={4}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                />
+              </div>
+              <div className="flex justify-end gap-4 mt-8">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingEmail(null);
                     toast.info('Cancelled editing');
                   }}
                   className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
