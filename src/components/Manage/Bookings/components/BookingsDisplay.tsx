@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Pencil, Trash2, Loader2, AlertCircle, Mail } from 'lucide-react';
+import { Pencil, Trash2, Loader2, AlertCircle, Mail, Calendar } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Booking {
@@ -27,6 +27,7 @@ export default function BookingDisplay() {
   const [editingBooking, setEditingBooking] = useState<Booking | null>(null);
   const [editingEmail, setEditingEmail] = useState<Email | null>(null);
   const [showEmails, setShowEmails] = useState(false);
+  const [showBookings, setShowBookings] = useState(true);
 
   useEffect(() => {
     fetchBookings();
@@ -49,6 +50,7 @@ export default function BookingDisplay() {
       if (data.success && Array.isArray(data.emails)) {
         setEmails(data.emails);
         setShowEmails(true);
+        setShowBookings(false);
         toast.success('Emails fetched successfully', {
           id: toastId,
         });
@@ -272,38 +274,59 @@ export default function BookingDisplay() {
 
   return (
     <div className="p-2 md:p-6 bg-white rounded-lg shadow-lg">
-      <div className="mb-4 flex justify-end">
+      <div className="mb-4 flex justify-end space-x-4">
         <button
-          onClick={fetchEmails}
-          className="flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors"
+          onClick={() => {
+            setShowBookings(true);
+            setShowEmails(false);
+          }}
+          className={`flex items-center px-4 py-2 text-sm font-medium text-white ${showBookings ? 'bg-purple-600' : 'bg-purple-400'} hover:bg-purple-700 rounded-md transition-colors`}
+        >
+          <Calendar className="w-4 h-4 mr-2" />
+          {showBookings ? 'Hide Bookings' : 'View Bookings'}
+        </button>
+        <button
+          onClick={() => {
+            if (!showEmails) {
+              fetchEmails();
+            } else {
+              setShowEmails(false);
+              setShowBookings(true);
+            }
+          }}
+          className={`flex items-center px-4 py-2 text-sm font-medium text-white ${showEmails ? 'bg-blue-600' : 'bg-blue-400'} hover:bg-blue-700 rounded-md transition-colors`}
         >
           <Mail className="w-4 h-4 mr-2" />
-          View Emails
+          {showEmails ? 'Hide Emails' : 'View Emails'}
         </button>
       </div>
 
       {showEmails && (
         <div className="mb-8">
           <h3 className="text-xl font-bold mb-4">Emails</h3>
-          <div className="overflow-x-auto -mx-4 sm:mx-0">
+          <div className="overflow-x-auto">
             <div className="inline-block min-w-full align-middle">
               <div className="overflow-hidden">
                 {/* Mobile view for emails */}
                 {emails.map((email) => (
-                  <div key={email._id} className="bg-white p-4 rounded-lg shadow mb-4 border border-gray-200 sm:hidden">
-                    <div className="flex justify-between items-start mb-2">
-                      <div className="font-medium text-gray-900">{email.name}</div>
-                      <div className="flex space-x-2">
-                        <button
-                          onClick={() => handleDeleteEmail(email._id)}
-                          className="text-red-600 hover:text-red-900 transition-colors"
-                        >
-                          <Trash2 className="w-5 h-5" />
-                        </button>
-                      </div>
+                  <div key={email._id} className="bg-white p-4 rounded-lg shadow-md mb-4 border border-gray-200 sm:hidden">
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="font-semibold text-lg text-gray-900">{email.name}</div>
+                      <button
+                        onClick={() => handleDeleteEmail(email._id)}
+                        className="text-red-600 hover:text-red-900 transition-colors p-2 rounded-full hover:bg-red-50"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
                     </div>
-                    <div className="text-sm text-gray-500 mb-2">{email.email}</div>
-                    <div className="text-sm text-gray-700">{email.message}</div>
+                    <div className="text-base text-gray-600 mb-2">
+                      <a href={`mailto:${email.email}`} className="text-blue-600 hover:underline">
+                        {email.email}
+                      </a>
+                    </div>
+                    <div className="text-base text-gray-700 bg-gray-50 p-3 rounded-lg">
+                      {email.message}
+                    </div>
                   </div>
                 ))}
 
@@ -343,90 +366,105 @@ export default function BookingDisplay() {
         </div>
       )}
 
-      <div className="overflow-x-auto -mx-4 sm:mx-0">
-        <div className="inline-block min-w-full align-middle">
-          <div className="overflow-hidden">
-            {/* Mobile view */}
-            {bookings.map((booking) => (
-              <div key={booking._id} className="bg-white p-4 rounded-lg shadow mb-4 border border-gray-200 sm:hidden">
-                <div className="flex justify-between items-start mb-2">
-                  <div className="font-medium text-gray-900">{booking.name}</div>
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={() => handleEdit(booking)}
-                      className="text-indigo-600 hover:text-indigo-900 transition-colors"
-                    >
-                      <Pencil className="w-5 h-5" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(booking._id)}
-                      className="text-red-600 hover:text-red-900 transition-colors"
-                    >
-                      <Trash2 className="w-5 h-5" />
-                    </button>
+      {showBookings && (
+        <div className="overflow-x-auto">
+          <h3 className="text-xl font-bold mb-4">Bookings</h3>
+          <div className="inline-block min-w-full align-middle">
+            <div className="overflow-hidden">
+              {/* Mobile view */}
+              {bookings.map((booking) => (
+                <div key={booking._id} className="bg-white p-4 rounded-lg shadow-md mb-4 border border-gray-200 sm:hidden">
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="font-semibold text-lg text-gray-900">{booking.name}</div>
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => handleEdit(booking)}
+                        className="text-indigo-600 hover:text-indigo-900 transition-colors p-2 rounded-full hover:bg-indigo-50"
+                      >
+                        <Pencil className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(booking._id)}
+                        className="text-red-600 hover:text-red-900 transition-colors p-2 rounded-full hover:bg-red-50"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center text-base text-gray-600">
+                      <span className="font-medium mr-2">Phone:</span>
+                      <a href={`tel:${booking.phoneNumber}`} className="text-blue-600 hover:underline">
+                        {booking.phoneNumber}
+                      </a>
+                    </div>
+                    <div className="flex items-center text-base text-gray-600">
+                      <span className="font-medium mr-2">Date:</span>
+                      {new Date(booking.date).toLocaleDateString('en-GB', {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}
+                    </div>
+                    <div className="flex items-center text-base text-gray-600">
+                      <span className="font-medium mr-2">Time:</span>
+                      {booking.timeSlot}
+                    </div>
                   </div>
                 </div>
-                <div className="text-sm text-gray-500 mb-1">
-                  Phone: {booking.phoneNumber}
-                </div>
-                <div className="text-sm text-gray-500 mb-1">
-                  Date: {new Date(booking.date).toLocaleDateString('en-GB')}
-                </div>
-                <div className="text-sm text-gray-500">
-                  Time: {booking.timeSlot}
-                </div>
-              </div>
-            ))}
+              ))}
 
-            {/* Desktop view */}
-            <table className="min-w-full divide-y divide-gray-200 hidden sm:table">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th scope="col" className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider md:px-6">Name</th>
-                  <th scope="col" className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider md:px-6">Phone Number</th>
-                  <th scope="col" className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider md:px-6">Date</th>
-                  <th scope="col" className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider md:px-6">Time Slot</th>
-                  <th scope="col" className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider md:px-6">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {bookings.map((booking) => (
-                  <tr key={booking._id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900 md:px-6">
-                      {booking.name}
-                    </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500 md:px-6">
-                      {booking.phoneNumber}
-                    </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500 md:px-6">
-                      {new Date(booking.date).toLocaleDateString('en-GB')}
-                    </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500 md:px-6">
-                      {booking.timeSlot}
-                    </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm font-medium md:px-6">
-                      <div className="flex space-x-3">
-                        <button
-                          onClick={() => handleEdit(booking)}
-                          className="text-indigo-600 hover:text-indigo-900 transition-colors"
-                        >
-                          <Pencil className="w-5 h-5" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(booking._id)}
-                          className="text-red-600 hover:text-red-900 transition-colors"
-                        >
-                          <Trash2 className="w-5 h-5" />
-                        </button>
-                      </div>
-                    </td>
+              {/* Desktop view */}
+              <table className="min-w-full divide-y divide-gray-200 hidden sm:table">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th scope="col" className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider md:px-6">Name</th>
+                    <th scope="col" className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider md:px-6">Phone Number</th>
+                    <th scope="col" className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider md:px-6">Date</th>
+                    <th scope="col" className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider md:px-6">Time Slot</th>
+                    <th scope="col" className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider md:px-6">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {bookings.map((booking) => (
+                    <tr key={booking._id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900 md:px-6">
+                        {booking.name}
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500 md:px-6">
+                        {booking.phoneNumber}
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500 md:px-6">
+                        {new Date(booking.date).toLocaleDateString('en-GB')}
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500 md:px-6">
+                        {booking.timeSlot}
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-sm font-medium md:px-6">
+                        <div className="flex space-x-3">
+                          <button
+                            onClick={() => handleEdit(booking)}
+                            className="text-indigo-600 hover:text-indigo-900 transition-colors"
+                          >
+                            <Pencil className="w-5 h-5" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(booking._id)}
+                            className="text-red-600 hover:text-red-900 transition-colors"
+                          >
+                            <Trash2 className="w-5 h-5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {editingBooking && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
