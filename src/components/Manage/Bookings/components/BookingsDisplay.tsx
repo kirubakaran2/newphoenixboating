@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Pencil, Trash2, Loader2, AlertCircle } from 'lucide-react';
+import { Pencil, Trash2, Loader2, AlertCircle, Mail } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Booking {
@@ -10,17 +10,56 @@ interface Booking {
   phoneNumber: string;
 }
 
+interface Email {
+  _id: string;
+  name: string;
+  email: string;
+  message: string;
+}
+
 const BASE_URL = "https://phoneixboatingbackend.onrender.com/api";
 
 export default function BookingDisplay() {
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [emails, setEmails] = useState<Email[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [editingBooking, setEditingBooking] = useState<Booking | null>(null);
+  const [showEmails, setShowEmails] = useState(false);
 
   useEffect(() => {
     fetchBookings();
   }, []);
+
+  const fetchEmails = async () => {
+    const toastId = toast.loading('Fetching emails...');
+    try {
+      const token = sessionStorage.getItem('jwtToken');
+      const response = await fetch(`${BASE_URL}/getemail`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (!response.ok) throw new Error('Failed to fetch emails');
+      
+      const data = await response.json();
+
+      if (data.success && Array.isArray(data.emails)) {
+        setEmails(data.emails);
+        setShowEmails(true);
+        toast.success('Emails fetched successfully', {
+          id: toastId,
+        });
+      } else {
+        throw new Error('Invalid response format');
+      }
+    } catch (err) {
+      toast.error('Failed to fetch emails. Please try again later.', {
+        id: toastId,
+      });
+    }
+  };
 
   const fetchBookings = async () => {
     const toastId = toast.loading('Fetching bookings...');
@@ -153,6 +192,42 @@ export default function BookingDisplay() {
 
   return (
     <div className="p-4 md:p-6 bg-white rounded-lg shadow-lg">
+      <div className="mb-4 flex justify-end">
+        <button
+          onClick={fetchEmails}
+          className="flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors"
+        >
+          <Mail className="w-4 h-4 mr-2" />
+          View Emails
+        </button>
+      </div>
+
+      {showEmails && (
+        <div className="mb-8">
+          <h3 className="text-xl font-bold mb-4">Emails</h3>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Name</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Email</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Message</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {emails.map((email) => (
+                  <tr key={email._id}>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{email.name}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{email.email}</td>
+                    <td className="px-6 py-4 text-sm text-gray-500">{email.message}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
       <div className="overflow-x-auto">
         <div className="inline-block min-w-full align-middle">
           <div className="overflow-hidden border border-gray-200 sm:rounded-lg">
