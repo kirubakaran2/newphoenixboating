@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { Phone, MapPin } from 'lucide-react';
 import { MdEmail } from 'react-icons/md';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 export const Contact = () => {
   const [formData, setFormData] = useState({
@@ -12,6 +13,7 @@ export const Contact = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const toastId = toast.loading('Sending message...');
     try {
       const response = await fetch('https://phoneixboatingbackend.onrender.com/api/email', {
         method: 'POST',
@@ -22,14 +24,14 @@ export const Contact = () => {
       });
 
       if (response.ok) {
-        alert('Message sent successfully!');
+        toast.success('Message sent successfully!', { id: toastId });
         setFormData({ name: '', email: '', message: '' });
       } else {
-        alert('Failed to send message. Please try again.');
+        toast.error('Failed to send message. Please try again.', { id: toastId });
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('An error occurred. Please try again later.');
+      toast.error('An error occurred. Please try again later.', { id: toastId });
     }
   };
 
