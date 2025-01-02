@@ -209,7 +209,7 @@ export const BookingModal = ({ isOpen, onClose }: BookingModalProps) => {
             </div>
             <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-3 md:mb-4">Booking Successful!</h3>
             <p className="text-gray-600 mb-4 md:mb-6 text-sm md:text-base">
-              We'll contact you shortly at {phone} to confirm your booking details.
+              Our team will call you shortly to confirm your booking details.
             </p>
             <div className="animate-pulse text-blue-600 text-sm md:text-base">Processing your request...</div>
           </div>
