@@ -1,4 +1,5 @@
 import React, { useEffect, useState, Suspense } from 'react';
+import { Toaster } from 'sonner';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { LoadingScreen } from './components/LoadingScreen';
 import { Navbar } from './components/Navbar';
@@ -28,6 +29,7 @@ function App() {
 
   return (
     <Router>
+      <Toaster position="top-right" richColors />
       {loading && <LoadingScreen />}
       <div className="relative min-h-screen">
         <SimpleBar style={{ maxHeight: '100vh' }}>
