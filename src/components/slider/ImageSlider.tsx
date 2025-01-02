@@ -1,23 +1,31 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+// Preload images
+const preloadImage = (url: string) => {
+  const img = new Image();
+  img.src = url;
+  return url;
+};
+
 const images = [
   {
     url: "https://i.postimg.cc/qBsZnFtx/mangrove2.jpg?w=800&auto=format",
     title: "Mangrove Forest",
-    preload: new Image().src = "https://i.postimg.cc/qBsZnFtx/mangrove2.jpg?w=800&auto=format"
+    preload: preloadImage("https://i.postimg.cc/qBsZnFtx/mangrove2.jpg?w=800&auto=format")
   },
   {
-    url: "https://i.postimg.cc/1zTw8yc5/arikamedu2.png?w=800&auto=format", 
+    url: "https://i.postimg.cc/1zTw8yc5/arikamedu2.png?w=800&auto=format",
     title: "Arikamedu",
-    preload: new Image().src = "https://i.postimg.cc/1zTw8yc5/arikamedu2.png?w=800&auto=format"
+    preload: preloadImage("https://i.postimg.cc/1zTw8yc5/arikamedu2.png?w=800&auto=format")
   },
   {
-    url: "https://i.postimg.cc/RVDg7xTy/beach3.png?w=800&auto=format",
+    url: "https://pondymarinaboathouse.com/wp-content/uploads/2024/03/DSC07276.jpg",
     title: "Fishing Harbour",
-    preload: new Image().src = "https://i.postimg.cc/RVDg7xTy/beach3.png?w=800&auto=format"
+    preload: preloadImage("https://pondymarinaboathouse.com/wp-content/uploads/2024/03/DSC07276.jpg")
   }
 ];
+
 
 export const ImageSlider = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
