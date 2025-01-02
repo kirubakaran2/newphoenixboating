@@ -10,10 +10,16 @@ import { Footer } from './components/Footer';
 import { FloatingElements } from './components/FloatingElements';
 import SimpleBar from 'simplebar-react';
 import 'simplebar/dist/simplebar.min.css';
-import AdminLogin from './components/Manage/Adminlogin';
+import AdminLogin from './components/Manage/AdminLogin';
 import Dashboard from './components/Manage/Bookings/index.tsx';
 
 const Feedback = React.lazy(() => import('./components/Feedback').then(module => ({ default: module.Feedback })));
+
+// Auth guard component
+const PrivateRoute = ({ children }) => {
+  const isAuthenticated = localStorage.getItem('adminToken'); // Or your auth check
+  return isAuthenticated ? children : <Navigate to="/admin-signin" replace />;
+};
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -31,12 +37,13 @@ function App() {
       {loading && <LoadingScreen />}
       <div className="relative min-h-screen">
         <SimpleBar style={{ maxHeight: '100vh' }}>
-          <div className="relative">
-            <Routes>
-              {/* Public Routes */}
-              <Route path="/" element={
-                <>
-                 <FloatingElements />
+          <Routes>
+            {/* Public home route */}
+            <Route 
+              path="/" 
+              element={
+                <div className="relative">
+                  <FloatingElements />
                   <Navbar />
                   <Hero />
                   <About />
@@ -46,15 +53,24 @@ function App() {
                   </Suspense>
                   <Contact />
                   <Footer />
-                </>
-              } />
+                </div>
+              } 
+            />
 
-              {/* Admin Routes */}
-              <Route path="/admin-signin" element={<AdminLogin />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="*" element={<Navigate to="/" />} />
-            </Routes>
-          </div>
+            {/* Admin routes */}
+            <Route path="/admin-signin" element={<AdminLogin />} />
+            <Route 
+              path="/dashboard/*" 
+              element={
+                <PrivateRoute>
+                  <Dashboard />
+                </PrivateRoute>
+              } 
+            />
+
+            {/* Catch all route */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
         </SimpleBar>
       </div>
     </Router>
