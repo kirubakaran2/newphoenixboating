@@ -3,16 +3,19 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 const images = [
   {
-    url: "https://i.postimg.cc/qBsZnFtx/mangrove2.jpg",
-    title: "Mangrove Forest"
+    url: "https://i.postimg.cc/qBsZnFtx/mangrove2.jpg?w=800&auto=format",
+    title: "Mangrove Forest",
+    preload: new Image().src = "https://i.postimg.cc/qBsZnFtx/mangrove2.jpg?w=800&auto=format"
   },
   {
-    url: "https://i.postimg.cc/1zTw8yc5/arikamedu2.png",
-    title: "Arikamedu"
+    url: "https://i.postimg.cc/1zTw8yc5/arikamedu2.png?w=800&auto=format", 
+    title: "Arikamedu",
+    preload: new Image().src = "https://i.postimg.cc/1zTw8yc5/arikamedu2.png?w=800&auto=format"
   },
   {
-    url: "https://i.postimg.cc/RVDg7xTy/beach3.png",
-    title: "Fishing Harbour"
+    url: "https://i.postimg.cc/RVDg7xTy/beach3.png?w=800&auto=format",
+    title: "Fishing Harbour",
+    preload: new Image().src = "https://i.postimg.cc/RVDg7xTy/beach3.png?w=800&auto=format"
   }
 ];
 
