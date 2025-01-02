@@ -295,12 +295,6 @@ export default function BookingDisplay() {
                       <div className="font-medium text-gray-900">{email.name}</div>
                       <div className="flex space-x-2">
                         <button
-                          onClick={() => handleEditEmail(email)}
-                          className="text-indigo-600 hover:text-indigo-900 transition-colors"
-                        >
-                          <Pencil className="w-5 h-5" />
-                        </button>
-                        <button
                           onClick={() => handleDeleteEmail(email._id)}
                           className="text-red-600 hover:text-red-900 transition-colors"
                         >
@@ -331,12 +325,6 @@ export default function BookingDisplay() {
                         <td className="px-6 py-4 text-sm text-gray-500">{email.message}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           <div className="flex space-x-3">
-                            <button
-                              onClick={() => handleEditEmail(email)}
-                              className="text-indigo-600 hover:text-indigo-900 transition-colors"
-                            >
-                              <Pencil className="w-5 h-5" />
-                            </button>
                             <button
                               onClick={() => handleDeleteEmail(email._id)}
                               className="text-red-600 hover:text-red-900 transition-colors"
