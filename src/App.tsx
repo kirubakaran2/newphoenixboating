@@ -10,7 +10,7 @@ import { Footer } from './components/Footer';
 import { FloatingElements } from './components/FloatingElements';
 import SimpleBar from 'simplebar-react';
 import 'simplebar/dist/simplebar.min.css';
-import AdminLogin from './components/Manage/AdminLogin';
+import AdminLogin from './components/Manage/Adminlogin';
 import Dashboard from './components/Manage/Bookings/index.tsx';
 
 const Feedback = React.lazy(() => import('./components/Feedback').then(module => ({ default: module.Feedback })));
@@ -58,7 +58,7 @@ function App() {
             />
 
             {/* Admin routes */}
-            <Route path="/admin-signin" element={<AdminLogin />} />
+            <Route path="/admin-signin" element={<Adminlogin />} />
             <Route 
               path="/dashboard/*" 
               element={
