@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import boat1 from './beach.png';
 import { Loader2, Lock, Mail } from 'lucide-react';
 
 const AdminLogin = () => {
@@ -46,7 +45,7 @@ const AdminLogin = () => {
     <div
       className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-900/90 to-black/90"
       style={{
-        backgroundImage: `url(${boat1})`,
+        backgroundImage: `url('https://t4.ftcdn.net/jpg/06/06/87/63/360_F_606876358_NU2hCq3RP7xDpXG6PWnAMGGAun0fB5tW.jpg')`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundBlendMode: 'overlay',
