@@ -1,8 +1,46 @@
 import { motion } from 'framer-motion';
 import { Phone, MapPin } from 'lucide-react';
 import { MdEmail } from 'react-icons/md';
+import { useState } from 'react';
 
 export const Contact = () => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    message: ''
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const response = await fetch('https://phoneixboatingbackend.onrender.com/api/email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+      });
+
+      if (response.ok) {
+        alert('Message sent successfully!');
+        setFormData({ name: '', email: '', message: '' });
+      } else {
+        alert('Failed to send message. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('An error occurred. Please try again later.');
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
   return (
     <section id="contact" className="py-20 bg-blue-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -31,7 +69,7 @@ export const Contact = () => {
           >
             <h3 className="text-2xl font-semibold text-blue-900 mb-6">Contact Information</h3>
             <div className="space-y-4">
-              <div className="flex items-center">
+              <div className="flex items-center p-3 rounded-lg hover:bg-blue-50 transition-colors">
                 <Phone className="h-6 w-6 text-blue-600 mr-4" />
                 <a
                   href="tel:+919092446092"
@@ -40,7 +78,7 @@ export const Contact = () => {
                   +91 9092446092 | +91 9087396902
                 </a>
               </div>
-              <div className="flex items-center">
+              <div className="flex items-center p-3 rounded-lg hover:bg-blue-50 transition-colors">
                 <MdEmail className="h-6 w-6 text-blue-600 mr-4 flex-shrink-0" />
                 <a
                   href="mailto:newphoenixboatingadventures@gmail.com"
@@ -49,7 +87,7 @@ export const Contact = () => {
                   newphoenixboatingadventures@gmail.com
                 </a>
               </div>
-              <div className="flex items-center">
+              <div className="flex items-center p-3 rounded-lg hover:bg-blue-50 transition-colors">
                 <MapPin className="h-6 w-6 text-blue-600 mr-4" />
                 <a
                   href="https://maps.app.goo.gl/Q2woftqfnjB7cHU77"
@@ -72,31 +110,46 @@ export const Contact = () => {
             className="bg-white p-8 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
           >
             <h3 className="text-2xl font-semibold text-blue-900 mb-6">Send Us a Message</h3>
-            <form className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Name</label>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="relative">
                 <input
                   type="text"
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 transition-all"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  required
+                  placeholder=" "
+                  className="block w-full px-4 py-3 text-gray-700 bg-white border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none peer"
                 />
+                <label className="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1">Name</label>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Email</label>
+              <div className="relative">
                 <input
                   type="email"
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 transition-all"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                  placeholder=" "
+                  className="block w-full px-4 py-3 text-gray-700 bg-white border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none peer"
                 />
+                <label className="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1">Email</label>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Message</label>
+              <div className="relative">
                 <textarea
+                  name="message"
+                  value={formData.message}
+                  onChange={handleChange}
+                  required
                   rows={4}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 transition-all"
+                  placeholder=" "
+                  className="block w-full px-4 py-3 text-gray-700 bg-white border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none peer resize-none"
                 ></textarea>
+                <label className="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-6 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1">Message</label>
               </div>
               <button
                 type="submit"
-                className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:ring-4 focus:ring-blue-200 transition-all"
+                className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-200 transition-all transform hover:scale-[1.02] active:scale-[0.98] font-medium text-lg"
               >
                 Send Message
               </button>
