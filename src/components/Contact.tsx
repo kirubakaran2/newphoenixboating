@@ -13,7 +13,16 @@ export const Contact = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const toastId = toast.loading('Sending message...');
+    
+    // Create loading toast
+    const toastId = toast.loading('Sending message...', {
+      duration: Infinity, // Keep showing until manually dismissed
+      style: {
+        backgroundColor: 'black',
+        color: 'white'
+      }
+    });
+
     try {
       const response = await fetch('https://phoneixboatingbackend.onrender.com/api/email', {
         method: 'POST',
@@ -23,15 +32,39 @@ export const Contact = () => {
         body: JSON.stringify(formData)
       });
 
-      if (response.ok) {
-        toast.success('Message sent successfully!', { id: toastId });
+      const data = await response.json(); // Parse response
+
+      if (response.ok && data.success) {
+        // Update the loading toast to success
+        toast.dismiss(toastId);
+        toast.success('Message sent successfully!', {
+          style: {
+            backgroundColor: 'black',
+            color: 'white'
+          }
+        });
         setFormData({ name: '', email: '', message: '' });
       } else {
-        toast.error('Failed to send message. Please try again.', { id: toastId });
+        // Update the loading toast to error with server message if available
+        toast.dismiss(toastId);
+        toast.error(data.message || 'Failed to send message. Please try again.', {
+          style: {
+            backgroundColor: 'black', 
+            color: 'white'
+          }
+        });
       }
     } catch (error) {
       console.error('Error:', error);
-      toast.error('An error occurred. Please try again later.', { id: toastId });
+      // Update the loading toast to error
+      toast.error('An error occurred. Please try again later.', {
+        id: toastId,
+        duration: 3000,
+        style: {
+          backgroundColor: 'black',
+          color: 'white'
+        }
+      });
     }
   };
 
