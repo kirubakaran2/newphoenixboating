@@ -98,7 +98,7 @@ export const BookingModal = ({ isOpen, onClose }: BookingModalProps) => {
             <div className="space-y-6 md:space-y-8">
               <div>
                 <img
-                  src="https://i.postimg.cc/WbDs6rZn/image1.png"
+                  src="https://i.postimg.cc/wTvX4j90/image1.png"
                   alt="Boat"
                   className="w-full h-48 md:h-56 object-cover rounded-xl shadow-lg transform hover:scale-[1.02] transition-transform"
                 />
