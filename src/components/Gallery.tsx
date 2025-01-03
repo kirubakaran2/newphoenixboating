@@ -100,9 +100,6 @@ const Gallery = () => {
             ))}
           </motion.div>
 
-          {/* Gradient Overlays */}
-          <div className="absolute top-0 left-0 w-32 h-full bg-gradient-to-r from-gray-50 to-transparent z-10"></div>
-          <div className="absolute top-0 right-0 w-32 h-full bg-gradient-to-l from-gray-50 to-transparent z-10"></div>
         </div>
       </div>
     </section>
