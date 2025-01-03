@@ -74,7 +74,7 @@ export const Feedback = () => {
             See what our guests have to say about their experiences with us
           </p>
           <a 
-            href="https://g.co/kgs/HnTNE8C"
+            href="https://g.page/r/CU6DdQ_DrQzKEAE/review"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-block mt-6 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors duration-200"
