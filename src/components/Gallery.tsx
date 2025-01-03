@@ -1,28 +1,39 @@
 import { motion } from "framer-motion";
-
+import img1 from '../components/images/cus10.jpg';
+import img2 from '../components/images/cus11.jpg';
+import img3 from '../components/images/cus12.jpg';
+import img4 from '../components/images/cus14.jpg';
+import img5 from '../components/images/cus15.jpg';
+import img6 from '../components/images/cus16.jpg';
+import img7 from '../components/images/cus17.jpg';
+import img8 from '../components/images/cus18.jpg';
+import img9 from '../components/images/cus19.jpg';
+import img10 from '../components/images/cus20.jpg';
+import img11 from '../components/images/cus21.jpg';
+import img12 from '../components/images/cus22.jpg';
+import img13 from '../components/images/cus23.jpg';
+import img14 from '../components/images/cus24.jpg';
+import img15 from '../components/images/cus25.jpg';
+import img17 from '../components/images/cus27.jpg';
 const Gallery = () => {
   const images = [
-    { url: "https://i.postimg.cc/2SFmW5SY/cus10.jpg", alt: "Customer 10" },
-    { url: "https://i.postimg.cc/Cxmht1TN/cus11.jpg", alt: "Customer 11" },
-    { url: "https://i.postimg.cc/139RJFTX/cus12.jpg", alt: "Customer 12" },
-    { url: "https://i.postimg.cc/y6ZNdsc1/cus14.jpg", alt: "Customer 14" },
-    { url: "https://i.postimg.cc/m2Wg1JyQ/cus15.jpg", alt: "Customer 15" },
-    { url: "https://i.postimg.cc/hP2NR7vf/cus16.jpg", alt: "Customer 16" },
-    { url: "https://i.postimg.cc/VNrxRLY5/cus17.jpg", alt: "Customer 17" },
-    { url: "https://i.postimg.cc/7PMpXRy1/cus18.jpg", alt: "Customer 18" },
-    { url: "https://i.postimg.cc/m2LKnSbv/cus19.jpg", alt: "Customer 19" },
-    { url: "https://i.postimg.cc/T3SSpMrx/cus21.jpg", alt: "Customer 21" },
-    { url: "https://i.postimg.cc/nLDWmRkD/cus22.jpg", alt: "Customer 22" },
-    { url: "https://i.postimg.cc/NMvzk6JP/cus23.jpg", alt: "Customer 23" },
-    { url: "https://i.postimg.cc/v8zN56W3/cust1.jpg", alt: "Customer 1" },
-    { url: "https://i.postimg.cc/mrCdkcL3/cust2.jpg", alt: "Customer 2" },
-    { url: "https://i.postimg.cc/xTpp4Dpm/cust3.jpg", alt: "Customer 3" },
-    { url: "https://i.postimg.cc/4xK2CLjS/cust4.jpg", alt: "Customer 4" },
-    { url: "https://i.postimg.cc/qRr13kqP/cust5.jpg", alt: "Customer 5" },
-    { url: "https://i.postimg.cc/W37XmQJh/cust6.jpg", alt: "Customer 6" },
-    { url: "https://i.postimg.cc/vHKXv7DL/cust7.jpg", alt: "Customer 7" },
-    { url: "https://i.postimg.cc/hvys6Tsn/cust8.jpg", alt: "Customer 8" },
-    { url: "https://i.postimg.cc/c4CXYk1L/cusy9.jpg", alt: "Customer 9" }
+    { url: img1, alt: "Customer 10" },
+    { url: img2, alt: "Customer 11" },
+    { url: img3, alt: "Customer 12" },
+    { url: img4, alt: "Customer 14" },
+    { url: img5, alt: "Customer 15" },
+    { url: img6, alt: "Customer 16" },
+    { url: img7, alt: "Customer 17" },
+    { url: img8, alt: "Customer 18" },
+    { url: img9, alt: "Customer 19" },
+    { url: img17, alt: "Customer 27" },
+    { url: img10, alt: "Customer 20" },
+    { url: img11, alt: "Customer 21" },
+    { url: img12, alt: "Customer 22" },
+    { url: img13, alt: "Customer 23" },
+    { url: img14, alt: "Customer 24" },
+    { url: img15, alt: "Customer 25" },
+   
   ];
 
   return (
