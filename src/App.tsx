@@ -9,6 +9,7 @@ import { Services } from './components/Services';
 import { Contact } from './components/Contact';
 import { Footer } from './components/Footer';
 import { FloatingElements } from './components/FloatingElements';
+import Gallery from './components/Gallery';
 import SimpleBar from 'simplebar-react';
 import 'simplebar/dist/simplebar.min.css';
 import AdminLogin from './components/Manage/Adminlogin';
@@ -43,6 +44,7 @@ function App() {
                   <Hero />
                   <About />
                   <Services />
+                  <Gallery />
                   <Suspense fallback={<div>Loading...</div>}>
                     <Feedback />
                   </Suspense>
