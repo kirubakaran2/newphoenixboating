@@ -42,8 +42,8 @@ function App() {
                  <FloatingElements />
                   <Navbar />
                   <Hero />
-                  <About />
                   <Services />
+                  <About />
                   <Gallery />
                   <Suspense fallback={<div>Loading...</div>}>
                     <Feedback />
