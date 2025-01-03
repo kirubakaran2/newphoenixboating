@@ -7,17 +7,18 @@ import arikamedu from './arikamedu.jpeg';
 
 export const Services = () => {
   const services = [
-    {
-      icon: <Sunset className="h-8 w-8 text-blue-600" />,
-      title: "Sunset Point",
-      description: "Experience breathtaking sunset views at our prime location",
-      image: sunset
-    },
+    
     {
       icon: <Trees className="h-8 w-8 text-blue-600" />,
       title: "Mangrove Forest",
       description: "Explore the mystical mangrove forests of Arikamedu",
       image: mangrove
+    },
+    {
+      icon: <Sailboat className="h-8 w-8 text-blue-600" />,
+      title: "Arikamedu Tours",
+      description: "Discover the historic Arikamedu site by boat",
+      image: arikamedu
     },
     {
       icon: <Fish className="h-8 w-8 text-blue-600" />,
@@ -26,10 +27,10 @@ export const Services = () => {
       image: harbour
     },
     {
-      icon: <Sailboat className="h-8 w-8 text-blue-600" />,
-      title: "Arikamedu Tours",
-      description: "Discover the historic Arikamedu site by boat",
-      image: arikamedu
+      icon: <Sunset className="h-8 w-8 text-blue-600" />,
+      title: "Sunset Point",
+      description: "Experience breathtaking sunset views at our prime location",
+      image: sunset
     }
   ];
 
