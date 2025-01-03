@@ -48,7 +48,7 @@ export const Hero = () => {
             className="text-lg sm:text-xl md:text-2xl mb-3 font-medium font-serif"
           >
             <span className="block sm:inline">For Reservations:</span>
-            <span className="block sm:inline sm:ml-2">9087396902 | 9092446092</span>
+            <span className="block sm:inline sm:ml-2">9087396092|7092836450|9092446092</span>
           </motion.p>
 
           <div className="relative mt-2 sm:mt-2">
