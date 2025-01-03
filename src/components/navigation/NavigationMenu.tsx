@@ -99,7 +99,7 @@ export const NavigationMenu: React.FC<NavigationMenuProps> = ({ onItemClick }) =
         </motion.a>
 
         <motion.a
-          href="https://instagram.com/phoenixboating"
+          href="https://www.instagram.com/newphoenixboatingpy/"
           target="_blank"
           rel="noopener noreferrer"
           whileHover={{ scale: 1.2 }}
