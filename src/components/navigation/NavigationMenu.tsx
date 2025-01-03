@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-scroll';
-import { Mail, Instagram } from 'lucide-react'; // Importing the Mail and Instagram icons
-import { FaPhoneAlt, FaWhatsapp } from 'react-icons/fa'; // Phone and WhatsApp icons from react-icons
+import { Mail, Instagram } from 'lucide-react';
+import { FaPhoneAlt, FaWhatsapp } from 'react-icons/fa';
 
 interface MenuItem {
   title: string;
@@ -24,7 +24,7 @@ const menuItems: MenuItem[] = [
 
 export const NavigationMenu: React.FC<NavigationMenuProps> = ({ onItemClick }) => {
   return (
-    <nav className="space-y-8 font-serif px-6">
+    <nav className="space-y-8 font-serif px-4 md:px-6">
       {menuItems.map((item, index) => (
         <motion.div
           key={item.to}
@@ -44,7 +44,7 @@ export const NavigationMenu: React.FC<NavigationMenuProps> = ({ onItemClick }) =
             smooth={true}
             offset={-64}
             duration={500}
-            className="text-4xl md:text-6xl font-bold text-white flex items-center relative group"
+            className="text-3xl md:text-4xl lg:text-6xl font-bold text-white flex items-center justify-center relative group"
             onClick={() => {
               onItemClick();
               setTimeout(() => {
@@ -64,38 +64,36 @@ export const NavigationMenu: React.FC<NavigationMenuProps> = ({ onItemClick }) =
         </motion.div>
       ))}
 
-      <div className="flex space-x-6 justify-center pt-8">
+      <div className="flex flex-wrap space-x-4 justify-center pt-8">
         <motion.a
           href="mailto:newphoenixboatingadventures@gmail.com"
           whileHover={{ scale: 1.2 }}
           whileTap={{ scale: 0.9 }}
           className="text-white"
         >
-          <Mail size={32} />
+          <Mail size={28} />
         </motion.a>
 
-        {/* Phone link with FaPhoneAlt from react-icons */}
         <motion.a
-          href="tel:+919092446092" // Phone number link
+          href="tel:+919092446092"
           target="_blank"
           rel="noopener noreferrer"
           whileHover={{ scale: 1.2 }}
           whileTap={{ scale: 0.9 }}
           className="text-white"
         >
-          <FaPhoneAlt size={32} /> {/* Phone icon from react-icons */}
+          <FaPhoneAlt size={28} />
         </motion.a>
 
-        {/* WhatsApp link with FaWhatsapp from react-icons */}
         <motion.a
-          href="https://wa.me/9087396092" // WhatsApp link
+          href="https://wa.me/9087396092"
           target="_blank"
           rel="noopener noreferrer"
           whileHover={{ scale: 1.2 }}
           whileTap={{ scale: 0.9 }}
           className="text-white"
         >
-          <FaWhatsapp size={32} /> {/* WhatsApp icon from react-icons */}
+          <FaWhatsapp size={28} />
         </motion.a>
 
         <motion.a
@@ -106,7 +104,7 @@ export const NavigationMenu: React.FC<NavigationMenuProps> = ({ onItemClick }) =
           whileTap={{ scale: 0.9 }}
           className="text-white"
         >
-          <Instagram size={32} />
+          <Instagram size={28} />
         </motion.a>
       </div>
     </nav>
