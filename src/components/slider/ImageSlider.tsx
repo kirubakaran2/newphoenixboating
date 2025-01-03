@@ -1,5 +1,5 @@
 import React from 'react';
-import videoSource from '../../components/images/vid.mp4';
+import videoSource from '../../components/images/vid.mp4'; // Ensure the path is correct
 
 export const ImageSlider: React.FC = () => {
   return (
