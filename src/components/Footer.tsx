@@ -69,7 +69,7 @@ export const Footer = () => {
             <ul className="space-y-4 text-blue-200">
               <li className="flex items-center group hover:text-white transition-colors">
                 <Phone className="h-5 w-5 mr-3 group-hover:text-blue-300 transition-colors" />
-                <a href="tel:+919092446092 | +919087396902" className="hover:text-white transition-colors">
+                <a href="tel:+919087396902" className="hover:text-white transition-colors">
                   +91 9092446092 | +91 9087396902
                 </a>
               </li>
@@ -105,7 +105,7 @@ export const Footer = () => {
               <ul className="space-y-2 text-blue-200">
                 <li className="flex items-center">
                   <span className="w-3 h-3 bg-green-400 rounded-full mr-2"></span>
-                  Mon - Sun: 7 AM - 6:30 PM
+                  Mon - Sun: 7 AM - 6 PM
                 </li>
               </ul>
             </div>
