@@ -1,11 +1,17 @@
-self.addEventListener('push', function(event) {
-    const options = {
-      body: event.data ? event.data.text() : 'No payload',
-      icon: 'icon.png', // Path to your icon
-      badge: 'badge.png' // Path to your badge
-    };
-  
-    event.waitUntil(
-      self.registration.showNotification('Notification Title', options)
-    );
-  });
+self.addEventListener('push', (event) => {
+  const data = event.data.json();
+
+  const options = {
+    body: data.body,
+    icon: data.icon,
+    vibrate: [200, 100, 200],
+    actions: [
+      { action: 'open', title: 'Open App' },
+      { action: 'dismiss', title: 'Dismiss' },
+    ],
+  };
+
+  event.waitUntil(
+    self.registration.showNotification(data.title, options)
+  );
+});
