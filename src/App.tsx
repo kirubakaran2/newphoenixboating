@@ -13,10 +13,11 @@ import Gallery from './components/Gallery';
 import SimpleBar from 'simplebar-react';
 import 'simplebar/dist/simplebar.min.css';
 import AdminLogin from './components/Manage/Adminlogin';
-import Dashboard from './components/Manage/Bookings/index.tsx';
-import { BASE_URL } from './components/Manage/Bookings/components/constants.ts';
+import Dashboard from './components/Manage/Bookings';
 
-const Feedback = React.lazy(() => import('./components/Feedback').then(module => ({ default: module.Feedback })));
+const Feedback = React.lazy(() => 
+  import('./components/Feedback').then(module => ({ default: module.Feedback }))
+);
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -24,45 +25,60 @@ function App() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 100);
+    }, 1000);
 
     return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
-    // Register the service worker
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/service-worker.js')
-        .then(registration => {
+    const registerServiceWorker = async () => {
+      if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
+        try {
+          // Use the correct path and ensure MIME type is set correctly
+          const registration = await navigator.serviceWorker.register('/service-worker.js', {
+            scope: '/'
+          });
+          
           console.log('Service Worker registered with scope:', registration.scope);
-          subscribeUserToPush(registration);
-        })
-        .catch(error => {
+          
+          // Request notification permission
+          const permission = await Notification.requestPermission();
+          if (permission === 'granted') {
+            try {
+              const subscription = await registration.pushManager.subscribe({
+                userVisibleOnly: true,
+                // Make sure to use your actual VAPID key here
+                applicationServerKey: process.env.REACT_APP_VAPID_PUBLIC_KEY
+              });
+              console.log('Push notification subscription:', subscription);
+            } catch (pushError) {
+              console.error('Push subscription failed:', pushError);
+            }
+          }
+        } catch (error) {
           console.error('Service Worker registration failed:', error);
-        });
-    }
+        }
+      }
+    };
+
+    registerServiceWorker();
   }, []);
 
-  async function subscribeUserToPush(registration: ServiceWorkerRegistration) {
-    try {
-      const subscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: 'BJSGv5raHxSFIvnQB493vrLqXCtGnpLfm1Yzw4nS9X67d4nh6pktfHewpyzajnAR0VjHg8G6qrKPeldQUqf13s0',
-      });
-      console.log('Push subscription:', subscription);
-      // Send subscription to your backend
-      await fetch(`${BASE_URL}/subscribe`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(subscription),
-      });
-    } catch (error) {
-      console.error('Failed to subscribe to push notifications:', error);
-    }
-  }
-  
+  const HomePage = () => (
+    <>
+      <FloatingElements />
+      <Navbar />
+      <Hero />
+      <Services />
+      <About />
+      <Gallery />
+      <Suspense fallback={<LoadingScreen />}>
+        <Feedback />
+      </Suspense>
+      <Contact />
+      <Footer />
+    </>
+  );
 
   return (
     <Router>
@@ -72,27 +88,10 @@ function App() {
         <SimpleBar style={{ maxHeight: '100vh' }}>
           <div className="relative">
             <Routes>
-              {/* Public Routes */}
-              <Route path="/" element={
-                <>
-                  <FloatingElements />
-                  <Navbar />
-                  <Hero />
-                  <Services />
-                  <About />
-                  <Gallery />
-                  <Suspense fallback={<div>Loading...</div>}>
-                    <Feedback />
-                  </Suspense>
-                  <Contact />
-                  <Footer />
-                </>
-              } />
-
-              {/* Admin Routes */}
+              <Route path="/" element={<HomePage />} />
               <Route path="/admin-signin" element={<AdminLogin />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              
+              <Route path="/dashboard/*" element={<Dashboard />} />
+              <Route path="*" element={<Navigate to="/" />} />
             </Routes>
           </div>
         </SimpleBar>
