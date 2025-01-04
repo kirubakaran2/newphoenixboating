@@ -30,8 +30,66 @@ export default function BookingDisplay() {
   const [showBookings, setShowBookings] = useState(true);
 
   useEffect(() => {
+    // Request notification permission
+    if (Notification.permission !== 'granted') {
+      Notification.requestPermission();
+    }
+
+    // Fetch initial data
     fetchBookings();
+    fetchEmails();
+
+    // Set up interval to fetch data every 5 minutes (300000 ms)
+    const intervalId = setInterval(() => {
+      fetchBookings();
+      fetchEmails();
+    }, 300000); // 5 minutes
+
+    // Cleanup interval on component unmount
+    return () => clearInterval(intervalId);
   }, []);
+
+  const showNotification = (title: string, body: string) => {
+    if (Notification.permission === 'granted') {
+      new Notification(title, { body });
+    }
+  };
+
+  const fetchBookings = async () => {
+    const toastId = toast.loading('Fetching bookings...');
+    try {
+      const token = sessionStorage.getItem('jwtToken');
+      const response = await fetch(`${BASE_URL}/bookings`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (!response.ok) throw new Error('Failed to fetch bookings');
+      
+      const data = await response.json();
+
+      if (data.success && Array.isArray(data.bookings)) {
+        // Check for new bookings
+        if (bookings.length !== data.bookings.length) {
+          showNotification('New Bookings', 'You have new bookings available.');
+        }
+        setBookings(data.bookings);
+        toast.success('Bookings fetched successfully', {
+          id: toastId,
+        });
+      } else {
+        throw new Error('Invalid response format');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch bookings');
+      toast.error('Failed to fetch bookings. Please try again later.', {
+        id: toastId,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchEmails = async () => {
     const toastId = toast.loading('Fetching emails...');
@@ -48,6 +106,10 @@ export default function BookingDisplay() {
       const data = await response.json();
 
       if (data.success && Array.isArray(data.emails)) {
+        // Check for new emails
+        if (emails.length !== data.emails.length) {
+          showNotification('New Emails', 'You have new emails available.');
+        }
         setEmails(data.emails);
         setShowEmails(true);
         setShowBookings(false);
@@ -57,7 +119,7 @@ export default function BookingDisplay() {
       } else {
         throw new Error('Invalid response format');
       }
-    } catch (err) {
+ } catch (err) {
       toast.error('Failed to fetch emails. Please try again later.', {
         id: toastId,
       });
@@ -140,38 +202,6 @@ export default function BookingDisplay() {
         id: toastId,
       });
       console.error('Update error:', err);
-    }
-  };
-
-  const fetchBookings = async () => {
-    const toastId = toast.loading('Fetching bookings...');
-    try {
-      const token = sessionStorage.getItem('jwtToken');
-      const response = await fetch(`${BASE_URL}/bookings`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      
-      if (!response.ok) throw new Error('Failed to fetch bookings');
-      
-      const data = await response.json();
-
-      if (data.success && Array.isArray(data.bookings)) {
-        setBookings(data.bookings);
-        toast.success('Bookings fetched successfully', {
-          id: toastId,
-        });
-      } else {
-        throw new Error('Invalid response format');
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch bookings');
-      toast.error('Failed to fetch bookings. Please try again later.', {
-        id: toastId,
-      });
-    } finally {
-      setLoading(false);
     }
   };
 
