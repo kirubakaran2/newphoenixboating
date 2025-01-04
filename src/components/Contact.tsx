@@ -92,7 +92,7 @@ export const Contact = () => {
                   href="tel:+919087396902"
                   className="text-gray-600 hover:text-blue-600 transition-colors"
                 >
-                  +91 9092446092 | +91 9087396902
+                  +91 9092446092 | +91 9087396092
                 </a>
               </div>
               <div className="flex items-center p-3 rounded-lg hover:bg-blue-50 transition-colors">
