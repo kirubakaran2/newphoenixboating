@@ -31,9 +31,20 @@ export default function BookingDisplay() {
 
   useEffect(() => {
     // Request notification permission
-    if (Notification.permission !== 'granted') {
-      Notification.requestPermission();
-    }
+    const requestNotificationPermission = async () => {
+      if (Notification.permission === 'granted') {
+        const registration = await navigator.serviceWorker.ready;
+        await subscribeUserToPush(registration);
+      } else if (Notification.permission === 'default') {
+        const permission = await Notification.requestPermission();
+        if (permission === 'granted') {
+          const registration = await navigator.serviceWorker.ready;
+          await subscribeUserToPush(registration);
+        }
+      }
+    };
+
+    requestNotificationPermission();
 
     // Fetch initial data
     fetchBookings();
@@ -54,6 +65,27 @@ export default function BookingDisplay() {
       new Notification(title, { body });
     }
   };
+
+async function subscribeUserToPush(registration: ServiceWorkerRegistration) {
+  try {
+    const subscription = await registration.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: 'BJSGv5raHxSFIvnQB493vrLqXCtGnpLfm1Yzw4nS9X67d4nh6pktfHewpyzajnAR0VjHg8G6qrKPeldQUqf13s0',
+    });
+    console.log('Push subscription:', subscription);
+    // Send subscription to your backend
+    await fetch(`${BASE_URL}/subscribe`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(subscription),
+    });
+  } catch (error) {
+    console.error('Failed to subscribe to push notifications:', error);
+  }
+}
+
 
   const fetchBookings = async () => {
     const toastId = toast.loading('Fetching bookings...');
@@ -119,7 +151,7 @@ export default function BookingDisplay() {
       } else {
         throw new Error('Invalid response format');
       }
- } catch (err) {
+    } catch (err) {
       toast.error('Failed to fetch emails. Please try again later.', {
         id: toastId,
       });
@@ -247,7 +279,7 @@ export default function BookingDisplay() {
     const token = sessionStorage.getItem('jwtToken');
   
     try {
-      const response = await fetch(`${BASE_URL}/bookings/${editingBooking._id}`, {
+      const response = await fetch(`${BASE_URL}/bookings/${editingBooking._id }`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -301,6 +333,8 @@ export default function BookingDisplay() {
       </div>
     );
   }
+
+
 
   return (
     <div className="p-2 md:p-6 bg-white rounded-lg shadow-lg">
