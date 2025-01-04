@@ -105,7 +105,7 @@ export const Footer = () => {
               <ul className="space-y-2 text-blue-200">
                 <li className="flex items-center">
                   <span className="w-3 h-3 bg-green-400 rounded-full mr-2"></span>
-                  Mon - Sun: 7 AM - 6 PM
+                  Mon - Sun: 7 AM - 5 PM
                 </li>
               </ul>
             </div>
