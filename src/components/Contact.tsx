@@ -89,7 +89,7 @@ export const Contact = () => {
               <div className="flex items-center p-3 rounded-lg hover:bg-blue-50 transition-colors">
                 <Phone className="h-6 w-6 text-blue-600 mr-4" />
                 <a
-                  href="tel:+919087396902"
+                  href="tel:+919087396092"
                   className="text-gray-600 hover:text-blue-600 transition-colors"
                 >
                   +91 9092446092 | +91 9087396092
