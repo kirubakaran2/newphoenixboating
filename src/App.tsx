@@ -92,7 +92,7 @@ function App() {
               {/* Admin Routes */}
               <Route path="/admin-signin" element={<AdminLogin />} />
               <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="*" element={<Navigate to="/" />} />
+              
             </Routes>
           </div>
         </SimpleBar>
