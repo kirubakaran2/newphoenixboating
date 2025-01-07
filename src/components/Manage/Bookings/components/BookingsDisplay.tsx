@@ -29,71 +29,81 @@ export default function BookingDisplay() {
   const [showEmails, setShowEmails] = useState(false);
   const [showBookings, setShowBookings] = useState(true);
 
-  useEffect(() => {
-    // Request notification permission
-    const requestNotificationPermission = async () => {
-      if (Notification.permission === 'granted') {
-        const registration = await navigator.serviceWorker.ready;
-        await subscribeUserToPush(registration);
-      } else if (Notification.permission === 'default') {
-        const permission = await Notification.requestPermission();
-        if (permission === 'granted') {
-          const registration = await navigator.serviceWorker.ready;
-          await subscribeUserToPush(registration);
-        }
+// In your BookingDisplay.tsx, modify the notification setup:
+interface ExtendedNotificationOptions extends NotificationOptions {
+  vibrate?: number[];
+}
+useEffect(() => {
+  // Request notification permission when dashboard loads
+  const requestNotificationPermission = async () => {
+    try {
+      // Check if notifications are supported
+      if (!('Notification' in window)) {
+        console.log('This browser does not support notifications');
+        return;
       }
-    };
 
-    requestNotificationPermission();
+      let permission = Notification.permission;
 
-    // Fetch initial data
-    fetchBookings();
-    fetchEmails();
+      // If not decided yet, request permission
+      if (permission === 'default') {
+        permission = await Notification.requestPermission();
+      }
 
-    // Set up interval to fetch data every 5 minutes (300000 ms)
-    const intervalId = setInterval(() => {
-      fetchBookings();
-      fetchEmails();
-    }, 300000); // 5 minutes
-
-    // Cleanup interval on component unmount
-    return () => clearInterval(intervalId);
-  }, []);
-
-  const showNotification = (title: string, body: string) => {
-    if (Notification.permission === 'granted') {
-      // Show notification through the service worker registration
-      navigator.serviceWorker.ready.then((registration) => {
-        registration.showNotification(title, {
-          body,
-          icon: '/icon.png',  // Optional: set an icon for the notification
+      // If granted, setup push subscription
+      if (permission === 'granted') {
+        const registration = await navigator.serviceWorker.ready;
+        const subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: 'BJSGv5raHxSFIvnQB493vrLqXCtGnpLfm1Yzw4nS9X67d4nh6pktfHewpyzajnAR0VjHg8G6qrKPeldQUqf13s0'
         });
-      }).catch(err => {
-        console.error('Failed to show notification:', err);
-      });
+
+        // Send subscription to backend
+        await fetch(`${BASE_URL}/subscribe`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(subscription),
+        });
+
+        // Show success toast
+        toast.success('Notifications enabled successfully');
+      }
+    } catch (error) {
+      console.error('Notification setup failed:', error);
+      toast.error('Failed to enable notifications');
     }
   };
-  
 
-async function subscribeUserToPush(registration: ServiceWorkerRegistration) {
-  try {
-    const subscription = await registration.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: 'BJSGv5raHxSFIvnQB493vrLqXCtGnpLfm1Yzw4nS9X67d4nh6pktfHewpyzajnAR0VjHg8G6qrKPeldQUqf13s0',
+  requestNotificationPermission();
+
+  // Fetch initial data and set up refresh interval
+  fetchBookings();
+  fetchEmails();
+
+  const intervalId = setInterval(() => {
+    fetchBookings();
+    fetchEmails();
+  }, 300000); // 5 minutes refresh
+
+  return () => clearInterval(intervalId);
+}, []);
+
+// Modify your showNotification function
+const showNotification = (title: string, body: string) => {
+  if (Notification.permission === 'granted') {
+    navigator.serviceWorker.ready.then((registration) => {
+      registration.showNotification(title, {
+        body,
+        icon: '/icon.png',
+        vibrate: [200, 100, 200],
+        tag: title,
+        renotify: true
+      } as ExtendedNotificationOptions);  // Add type assertion here
     });
-    console.log('Push subscription:', subscription);
-    // Send subscription to your backend
-    await fetch(`${BASE_URL}/subscribe`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(subscription),
-    });
-  } catch (error) {
-    console.error('Failed to subscribe to push notifications:', error);
   }
-}
+};
 
 
   const fetchBookings = async () => {
@@ -194,6 +204,7 @@ async function subscribeUserToPush(registration: ServiceWorkerRegistration) {
       console.error('Delete error:', err);
     }
   };
+
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this booking?')) return;
 
