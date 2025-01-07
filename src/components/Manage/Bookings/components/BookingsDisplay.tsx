@@ -174,7 +174,7 @@ async function subscribeUserToPush(registration: ServiceWorkerRegistration) {
     const token = sessionStorage.getItem('jwtToken');
 
     try {
-      const response = await fetch(`${BASE_URL}/email/${id}`, {
+      const response = await fetch(`${BASE_URL}/emails/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -194,58 +194,6 @@ async function subscribeUserToPush(registration: ServiceWorkerRegistration) {
       console.error('Delete error:', err);
     }
   };
-
-  const handleEditEmail = (email: Email) => {
-    setEditingEmail({...email});
-    toast.info('Editing email...');
-  };
-
-  const handleUpdateEmail = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-  
-    if (!editingEmail) return;
-
-    const toastId = toast.loading('Updating email...');
-    const token = sessionStorage.getItem('jwtToken');
-  
-    try {
-      const response = await fetch(`${BASE_URL}/email/${editingEmail._id}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: editingEmail.name,
-          email: editingEmail.email,
-          message: editingEmail.message
-        }),
-      });
-  
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to update email');
-      }
-  
-      const updatedData = await response.json();
-      setEmails(prevEmails =>
-        prevEmails.map(email =>
-          email._id === editingEmail._id ? updatedData.email : email
-        )
-      );
-  
-      setEditingEmail(null);
-      toast.success('Email updated successfully', {
-        id: toastId,
-      });
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to update email. Please try again.', {
-        id: toastId,
-      });
-      console.error('Update error:', err);
-    }
-  };
-
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this booking?')) return;
 
