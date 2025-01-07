@@ -136,7 +136,7 @@ async function subscribeUserToPush(registration: ServiceWorkerRegistration) {
     const toastId = toast.loading('Fetching emails...');
     try {
       const token = sessionStorage.getItem('jwtToken');
-      const response = await fetch(`${BASE_URL}/getemails`, {
+      const response = await fetch(`${BASE_URL}/emails`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
