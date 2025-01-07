@@ -29,81 +29,71 @@ export default function BookingDisplay() {
   const [showEmails, setShowEmails] = useState(false);
   const [showBookings, setShowBookings] = useState(true);
 
-// In your BookingDisplay.tsx, modify the notification setup:
-interface ExtendedNotificationOptions extends NotificationOptions {
-  vibrate?: number[];
-}
-useEffect(() => {
-  // Request notification permission when dashboard loads
-  const requestNotificationPermission = async () => {
-    try {
-      // Check if notifications are supported
-      if (!('Notification' in window)) {
-        console.log('This browser does not support notifications');
-        return;
-      }
-
-      let permission = Notification.permission;
-
-      // If not decided yet, request permission
-      if (permission === 'default') {
-        permission = await Notification.requestPermission();
-      }
-
-      // If granted, setup push subscription
-      if (permission === 'granted') {
+  useEffect(() => {
+    // Request notification permission
+    const requestNotificationPermission = async () => {
+      if (Notification.permission === 'granted') {
         const registration = await navigator.serviceWorker.ready;
-        const subscription = await registration.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: 'BJSGv5raHxSFIvnQB493vrLqXCtGnpLfm1Yzw4nS9X67d4nh6pktfHewpyzajnAR0VjHg8G6qrKPeldQUqf13s0'
-        });
-
-        // Send subscription to backend
-        await fetch(`${BASE_URL}/subscribe`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(subscription),
-        });
-
-        // Show success toast
-        toast.success('Notifications enabled successfully');
+        await subscribeUserToPush(registration);
+      } else if (Notification.permission === 'default') {
+        const permission = await Notification.requestPermission();
+        if (permission === 'granted') {
+          const registration = await navigator.serviceWorker.ready;
+          await subscribeUserToPush(registration);
+        }
       }
-    } catch (error) {
-      console.error('Notification setup failed:', error);
-      toast.error('Failed to enable notifications');
-    }
-  };
+    };
 
-  requestNotificationPermission();
+    requestNotificationPermission();
 
-  // Fetch initial data and set up refresh interval
-  fetchBookings();
-  fetchEmails();
-
-  const intervalId = setInterval(() => {
+    // Fetch initial data
     fetchBookings();
     fetchEmails();
-  }, 300000); // 5 minutes refresh
 
-  return () => clearInterval(intervalId);
-}, []);
+    // Set up interval to fetch data every 5 minutes (300000 ms)
+    const intervalId = setInterval(() => {
+      fetchBookings();
+      fetchEmails();
+    }, 300000); // 5 minutes
 
-// Modify your showNotification function
-const showNotification = (title: string, body: string) => {
-  if (Notification.permission === 'granted') {
-    navigator.serviceWorker.ready.then((registration) => {
-      registration.showNotification(title, {
-        body,
-        icon: '/icon.png',
-        vibrate: [200, 100, 200],
-        tag: title,
-        renotify: true
-      } as ExtendedNotificationOptions);  // Add type assertion here
+    // Cleanup interval on component unmount
+    return () => clearInterval(intervalId);
+  }, []);
+
+  const showNotification = (title: string, body: string) => {
+    if (Notification.permission === 'granted') {
+      // Show notification through the service worker registration
+      navigator.serviceWorker.ready.then((registration) => {
+        registration.showNotification(title, {
+          body,
+          icon: '/icon.png',  // Optional: set an icon for the notification
+        });
+      }).catch(err => {
+        console.error('Failed to show notification:', err);
+      });
+    }
+  };
+  
+
+async function subscribeUserToPush(registration: ServiceWorkerRegistration) {
+  try {
+    const subscription = await registration.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: 'BJSGv5raHxSFIvnQB493vrLqXCtGnpLfm1Yzw4nS9X67d4nh6pktfHewpyzajnAR0VjHg8G6qrKPeldQUqf13s0',
     });
+    console.log('Push subscription:', subscription);
+    // Send subscription to your backend
+    await fetch(`${BASE_URL}/subscribe`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(subscription),
+    });
+  } catch (error) {
+    console.error('Failed to subscribe to push notifications:', error);
   }
-};
+}
 
 
   const fetchBookings = async () => {
