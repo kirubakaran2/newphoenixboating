@@ -75,7 +75,7 @@ export default function BookingDisplay() {
     const intervalId = setInterval(() => {
       fetchBookings();
       fetchEmails();
-    }, 30000); // 5 minutes refresh
+    }, 300000); // 5 minutes refresh
 
     return () => clearInterval(intervalId);
   }, []);
@@ -147,9 +147,58 @@ export default function BookingDisplay() {
   };
 
   const handleDeleteEmail = async (id: string) => {
-  };
+    if (!confirm('Are you sure you want to delete this email?')) return;
 
+    const toastId = toast.loading('Deleting email...');
+    const token = sessionStorage.getItem('jwtToken');
+
+    try {
+      const response = await fetch(`${BASE_URL}/emails/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (!response.ok) throw new Error('Failed to delete email');
+      
+      setEmails(emails.filter(email => email._id !== id));
+      toast.success('Email deleted successfully', {
+        id: toastId,
+      });
+    } catch (err) {
+      toast.error('Failed to delete email. Please try again.', {
+        id: toastId,
+      });
+      console.error('Delete error:', err);
+    }
+  };
   const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this booking?')) return;
+
+    const toastId = toast.loading('Deleting booking...');
+    const token = sessionStorage.getItem('jwtToken');
+
+    try {
+      const response = await fetch(`${BASE_URL}/bookings/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (!response.ok) throw new Error('Failed to delete booking');
+      
+      setBookings(bookings.filter(booking => booking._id !== id));
+      toast.success('Booking deleted successfully', {
+        id: toastId,
+      });
+    } catch (err) {
+      toast.error('Failed to delete booking. Please try again.', {
+        id: toastId,
+      });
+      console.error('Delete error:', err);
+    }
   };
 
   return (
