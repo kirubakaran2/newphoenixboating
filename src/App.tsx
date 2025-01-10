@@ -77,7 +77,7 @@ const App: React.FC = () => {
               <Route path="/" element={<HomePage />} />
               <Route path="/admin-signin" element={<AdminLogin />} />
               <Route path="/dashboard/*" element={<Dashboard />} />
-              <Route path="*" element={<Navigate to="/" />} />
+              {/* <Route path="*" element={<Navigate to="/" />} /> */}
             </Routes>
           </div>
         </SimpleBar>
