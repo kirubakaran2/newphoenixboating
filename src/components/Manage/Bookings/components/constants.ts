@@ -17,4 +17,4 @@ export const BOOKING_STATUS_OPTIONS = [
   { value: 'rejected', label: 'Rejected' },
 ];
 
-export const BASE_URL = 'https://phoneixboatingbackend.onrender.com/api';
+export const BASE_URL = 'https://appsail-50024466061.development.catalystappsail.in/api';
