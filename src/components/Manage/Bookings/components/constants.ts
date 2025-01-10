@@ -17,4 +17,4 @@ export const PAYMENT_STATUS_OPTIONS = [
     { value: 'rejected', label: 'Rejected' },
   ];
   
-  export const BASE_URL = 'https://phoneixboatingbackend.onrender.com/api';
+  export const BASE_URL = 'http://localhost/api';

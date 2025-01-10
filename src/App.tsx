@@ -14,12 +14,8 @@ import SimpleBar from 'simplebar-react';
 import 'simplebar/dist/simplebar.min.css';
 import AdminLogin from './components/Manage/Adminlogin';
 import Dashboard from './components/Manage/Bookings';
-import { registerSW } from 'virtual:pwa-register';
 import { BASE_URL } from './components/Manage/Bookings/components/constants';
 
-interface ExtendedNotificationOptions extends NotificationOptions {
-  vibrate?: number[];
-}
 const Feedback = React.lazy(() => 
   import('./components/Feedback').then(module => ({ default: module.Feedback }))
 );
@@ -33,54 +29,7 @@ const App: React.FC = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  // Register service worker and handle updates
-  useEffect(() => {
-    if ('serviceWorker' in navigator) {
-      const updateSW = registerSW({
-        onNeedRefresh() {
-          setUpdateAvailable(true);
-        },
-        onOfflineReady() {
-          console.log('App ready to work offline');
-        },
-        immediate: true,
-      });
 
-      // Setup push notifications if in production
-      if (import.meta.env.PROD) {
-        setupPushNotifications();
-      }
-    }
-  }, []);
-
-  const setupPushNotifications = async () => {
-    try {
-      const permission = await Notification.requestPermission();
-      if (permission === 'granted') {
-        const registration = await navigator.serviceWorker.ready;
-        const subscription = await registration.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: import.meta.env.VITE_VAPID_PUBLIC_KEY,
-        });
-
-        // Send subscription to the backend
-        await fetch(`${BASE_URL}/api/subscribe`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(subscription),
-        });
-
-        // Show a success notification
-        registration.showNotification('Subscription successful!', {
-          body: 'You have successfully subscribed to notifications.',
-          icon: '/icon.png',
-          vibrate: [200, 100, 200], // Vibrate pattern
-        } as ExtendedNotificationOptions);
-      }
-    } catch (error) {
-      console.error('Push notification setup failed:', error);
-    }
-  };
   // Home page component
   const HomePage = () => (
     <>

@@ -1,6 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import { Pencil, Trash2, Loader2, AlertCircle, Mail, Calendar } from 'lucide-react';
 import { toast } from 'sonner';
+import { initializeApp } from 'firebase/app';
+import { getMessaging, onMessage as onMessageListener, getToken as getMessagingToken,MessagePayload } from 'firebase/messaging';
+import { BASE_URL } from './constants';
+// Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyBhfTqykMUlZP4PcFDtfv9OjXbA6wW2isA",
+  authDomain: "newphoenixboating.firebaseapp.com",
+  projectId: "newphoenixboating",
+  storageBucket: "newphoenixboating.firebasestorage.app",
+  messagingSenderId: "810741899734",
+  appId: "1:810741899734:web:9cec55f1c93bec76280477",
+  measurementId: "G-5SL9QYPL0X",
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const messaging = getMessaging(app);
 
 interface Booking {
   _id: string;
@@ -17,8 +34,6 @@ interface Email {
   message: string;
 }
 
-const BASE_URL = "https://phoneixboatingbackend.onrender.com/api";
-
 export default function BookingDisplay() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [emails, setEmails] = useState<Email[]>([]);
@@ -29,82 +44,61 @@ export default function BookingDisplay() {
   const [showEmails, setShowEmails] = useState(false);
   const [showBookings, setShowBookings] = useState(true);
 
-// In your BookingDisplay.tsx, modify the notification setup:
-interface ExtendedNotificationOptions extends NotificationOptions {
-  vibrate?: number[];
-}
-useEffect(() => {
-  // Request notification permission when dashboard loads
-  const requestNotificationPermission = async () => {
-    try {
-      // Check if notifications are supported
-      if (!('Notification' in window)) {
-        console.log('This browser does not support notifications');
-        return;
+  useEffect(() => {
+    const requestNotificationPermission = async () => {
+      try {
+        const permission = await Notification.requestPermission();
+        if (permission === 'granted') {
+          const token = await getMessagingToken(messaging);
+          await registerDeviceToken(token);
+        }
+      } catch (error) {
+        console.error('Notification setup failed:', error);
+        toast.error('Failed to enable notifications');
       }
+    };
 
-      let permission = Notification.permission;
+    const registerDeviceToken = async (token: string) => {
+      await fetch(`${BASE_URL}/register-device`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token }),
+      });
+    };
 
-      // If not decided yet, request permission
-      if (permission === 'default') {
-        permission = await Notification.requestPermission();
-      }
-
-      // If granted, setup push subscription
-      if (permission === 'granted') {
-        const registration = await navigator.serviceWorker.ready;
-        const subscription = await registration.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: 'BJSGv5raHxSFIvnQB493vrLqXCtGnpLfm1Yzw4nS9X67d4nh6pktfHewpyzajnAR0VjHg8G6qrKPeldQUqf13s0'
-        });
-
-        // Send subscription to backend
-        await fetch(`${BASE_URL}/subscribe`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(subscription),
-        });
-
-        // Show success toast
-        toast.success('Notifications enabled successfully');
-      }
-    } catch (error) {
-      console.error('Notification setup failed:', error);
-      toast.error('Failed to enable notifications');
-    }
-  };
-
-  requestNotificationPermission();
-
-  // Fetch initial data and set up refresh interval
-  fetchBookings();
-  fetchEmails();
-
-  const intervalId = setInterval(() => {
+    requestNotificationPermission();
     fetchBookings();
     fetchEmails();
-  }, 300000); // 5 minutes refresh
 
-  return () => clearInterval(intervalId);
-}, []);
+    const intervalId = setInterval(() => {
+      fetchBookings();
+      fetchEmails();
+    }, 30000); // 5 minutes refresh
 
-// Modify your showNotification function
-const showNotification = (title: string, body: string) => {
-  if (Notification.permission === 'granted') {
-    navigator.serviceWorker.ready.then((registration) => {
-      registration.showNotification(title, {
+    return () => clearInterval(intervalId);
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = onMessageListener(messaging, (payload: MessagePayload) => {
+      console.log('Message received. ', payload);
+      showNotification(payload.notification?.title || 'New Notification', payload.notification?.body || '');
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
+  const showNotification = (title: string, body: string) => {
+    if (Notification.permission === 'granted') {
+      new Notification(title, {
         body,
         icon: '/icon.png',
-        vibrate: [200, 100, 200],
-        tag: title,
-        renotify: true
-      } as ExtendedNotificationOptions);  // Add type assertion here
-    });
-  }
-};
-
+      });
+    }
+  };
 
   const fetchBookings = async () => {
     const toastId = toast.loading('Fetching bookings...');
@@ -115,28 +109,15 @@ const showNotification = (title: string, body: string) => {
           'Authorization': `Bearer ${token}`
         }
       });
-      
-      if (!response.ok) throw new Error('Failed to fetch bookings');
-      
-      const data = await response.json();
 
-      if (data.success && Array.isArray(data.bookings)) {
-        // Check for new bookings
-        if (bookings.length !== data.bookings.length) {
-          showNotification('New Bookings', 'You have new bookings available.');
-        }
-        setBookings(data.bookings);
-        toast.success('Bookings fetched successfully', {
-          id: toastId,
-        });
-      } else {
-        throw new Error('Invalid response format');
-      }
+      if (!response.ok) throw new Error('Failed to fetch bookings');
+
+      const data = await response.json();
+      setBookings(data.bookings);
+      toast.success('Bookings fetched successfully', { id: toastId });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch bookings');
-      toast.error('Failed to fetch bookings. Please try again later.', {
-        id: toastId,
-      });
+      toast.error('Failed to fetch bookings. Please try again later.', { id: toastId });
     } finally {
       setLoading(false);
     }
@@ -146,163 +127,30 @@ const showNotification = (title: string, body: string) => {
     const toastId = toast.loading('Fetching emails...');
     try {
       const token = sessionStorage.getItem('jwtToken');
-      const response = await fetch(`${BASE_URL}/emails`, {
+      const response = await fetch(`${BASE_URL}/email`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
-      
-      if (!response.ok) throw new Error('Failed to fetch emails');
-      
-      const data = await response.json();
 
-      if (data.success && Array.isArray(data.emails)) {
-        // Check for new emails
-        if (emails.length !== data.emails.length) {
-          showNotification('New Emails', 'You have new emails available.');
-        }
-        setEmails(data.emails);
-        setShowEmails(true);
-        setShowBookings(false);
-        toast.success('Emails fetched successfully', {
-          id: toastId,
-        });
-      } else {
-        throw new Error('Invalid response format');
-      }
+      if (!response.ok) throw new Error('Failed to fetch emails');
+
+      const data = await response.json();
+      setEmails(data.emails);
+      toast.success('Emails fetched successfully', { id: toastId });
     } catch (err) {
-      toast.error('Failed to fetch emails. Please try again later.', {
-        id: toastId,
-      });
+      setError(err instanceof Error ? err.message : 'Failed to fetch emails');
+      toast.error('Failed to fetch emails. Please try again later.', { id: toastId });
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleDeleteEmail = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this email?')) return;
-
-    const toastId = toast.loading('Deleting email...');
-    const token = sessionStorage.getItem('jwtToken');
-
-    try {
-      const response = await fetch(`${BASE_URL}/emails/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      
-      if (!response.ok) throw new Error('Failed to delete email');
-      
-      setEmails(emails.filter(email => email._id !== id));
-      toast.success('Email deleted successfully', {
-        id: toastId,
-      });
-    } catch (err) {
-      toast.error('Failed to delete email. Please try again.', {
-        id: toastId,
-      });
-      console.error('Delete error:', err);
-    }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this booking?')) return;
-
-    const toastId = toast.loading('Deleting booking...');
-    const token = sessionStorage.getItem('jwtToken');
-
-    try {
-      const response = await fetch(`${BASE_URL}/bookings/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      
-      if (!response.ok) throw new Error('Failed to delete booking');
-      
-      setBookings(bookings.filter(booking => booking._id !== id));
-      toast.success('Booking deleted successfully', {
-        id: toastId,
-      });
-    } catch (err) {
-      toast.error('Failed to delete booking. Please try again.', {
-        id: toastId,
-      });
-      console.error('Delete error:', err);
-    }
   };
-
-  const handleEdit = (booking: Booking) => {
-    setEditingBooking({...booking});
-    toast.info('Editing booking...');
-  };
-
-  const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-  
-    if (!editingBooking) return;
-
-    const toastId = toast.loading('Updating booking...');
-    const token = sessionStorage.getItem('jwtToken');
-  
-    try {
-      const response = await fetch(`${BASE_URL}/bookings/${editingBooking._id }`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: editingBooking.name,
-          date: editingBooking.date,
-          timeSlot: editingBooking.timeSlot,
-          phoneNumber: editingBooking.phoneNumber
-        }),
-      });
-  
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to update booking');
-      }
-  
-      const updatedData = await response.json();
-      setBookings(prevBookings =>
-        prevBookings.map(booking =>
-          booking._id === editingBooking._id ? updatedData.booking : booking
-        )
-      );
-  
-      setEditingBooking(null);
-      toast.success('Booking updated successfully', {
-        id: toastId,
-      });
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to update booking. Please try again.', {
-        id: toastId,
-      });
-      console.error('Update error:', err);
-    }
-  };
-  
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-[200px]">
-        <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex justify-center items-center min-h-[200px] text-red-600">
-        <AlertCircle className="w-6 h-6 mr-2" />
-        <span>{error}</span>
-      </div>
-    );
-  }
-
-
 
   return (
     <div className="p-2 md:p-6 bg-white rounded-lg shadow-lg">
@@ -410,12 +258,6 @@ const showNotification = (title: string, body: string) => {
                     <div className="font-semibold text-lg text-gray-900">{booking.name}</div>
                     <div className="flex space-x-2">
                       <button
-                        onClick={() => handleEdit(booking)}
-                        className="text-indigo-600 hover:text-indigo-900 transition-colors p-2 rounded-full hover:bg-indigo-50"
-                      >
-                        <Pencil className="w-5 h-5" />
-                      </button>
-                      <button
                         onClick={() => handleDelete(booking._id)}
                         className="text-red-600 hover:text-red-900 transition-colors p-2 rounded-full hover:bg-red-50"
                       >
@@ -476,12 +318,6 @@ const showNotification = (title: string, body: string) => {
                       <td className="px-4 py-4 whitespace-nowrap text-sm font-medium md:px-6">
                         <div className="flex space-x-3">
                           <button
-                            onClick={() => handleEdit(booking)}
-                            className="text-indigo-600 hover:text-indigo-900 transition-colors"
-                          >
-                            <Pencil className="w-5 h-5" />
-                          </button>
-                          <button
                             onClick={() => handleDelete(booking._id)}
                             className="text-red-600 hover:text-red-900 transition-colors"
                           >
@@ -502,7 +338,7 @@ const showNotification = (title: string, body: string) => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4 md:mx-auto">
             <h2 className="text-xl font-bold mb-6 text-gray-900">Edit Booking</h2>
-            <form onSubmit={handleUpdate} className="space-y-5">
+            <form  className="space-y-5">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
                 <input
@@ -578,7 +414,7 @@ const showNotification = (title: string, body: string) => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4 md:mx-auto">
             <h2 className="text-xl font-bold mb-6 text-gray-900">Edit Email</h2>
-            <form onSubmit={handleUpdateEmail} className="space-y-5">
+            <form className="space-y-5">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
                 <input
