@@ -15,10 +15,13 @@ import 'simplebar/dist/simplebar.min.css';
 import AdminLogin from './components/Manage/Adminlogin';
 import Dashboard from './components/Manage/Bookings';
 import { BASE_URL } from './components/Manage/Bookings/components/constants';
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/messaging';
 
 const Feedback = React.lazy(() => 
   import('./components/Feedback').then(module => ({ default: module.Feedback }))
 );
+
 const App: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [updateAvailable, setUpdateAvailable] = useState(false);
@@ -29,6 +32,19 @@ const App: React.FC = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  // Register the service worker for Firebase messaging
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker
+        .register('/firebase-messaging-sw.js')
+        .then((registration) => {
+          console.log('Service Worker registered with scope:', registration.scope);
+        })
+        .catch((error) => {
+          console.error('Service Worker registration failed:', error);
+        });
+    }
+  }, []);
 
   // Home page component
   const HomePage = () => (
@@ -49,19 +65,12 @@ const App: React.FC = () => {
 
   return (
     <Router>
-      <Toaster 
-        position="top-right" 
-        richColors 
-        closeButton
-        duration={5000}
-      />
-      
+      <Toaster position="top-right" richColors closeButton duration={5000} />
       {loading && <LoadingScreen />}
-      
       {updateAvailable && (
         <div className="fixed bottom-4 right-4 z-50 bg-blue-500 text-white p-4 rounded-lg shadow-lg">
           <p>New version available!</p>
-          <button 
+          <button
             onClick={() => window.location.reload()}
             className="mt-2 bg-white text-blue-500 px-4 py-2 rounded"
           >
@@ -69,7 +78,7 @@ const App: React.FC = () => {
           </button>
         </div>
       )}
-      
+
       <div className="relative min-h-screen">
         <SimpleBar style={{ maxHeight: '100vh' }}>
           <div className="relative">
@@ -77,13 +86,12 @@ const App: React.FC = () => {
               <Route path="/" element={<HomePage />} />
               <Route path="/admin-signin" element={<AdminLogin />} />
               <Route path="/dashboard/*" element={<Dashboard />} />
-              {/* <Route path="*" element={<Navigate to="/" />} /> */}
             </Routes>
           </div>
         </SimpleBar>
       </div>
     </Router>
   );
-}
+};
 
 export default App;
