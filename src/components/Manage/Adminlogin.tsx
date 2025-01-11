@@ -15,7 +15,7 @@ const AdminLogin = () => {
     setError('');
 
     try {
-      const response = await fetch('https://appsail-50024466061.development.catalystappsail.in/api/signin', {
+      const response = await fetch('https://phoneixboatingbackend.onrender.com/api/signin', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

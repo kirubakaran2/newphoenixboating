@@ -20,7 +20,7 @@ export const Contact = () => {
     });
 
     try {
-      const response = await fetch('https://appsail-50024466061.development.catalystappsail.in/api/email', {
+      const response = await fetch('https://phoneixboatingbackend.onrender.com/api/email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

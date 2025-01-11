@@ -39,7 +39,7 @@ export const BookingModal = ({ isOpen, onClose }: BookingModalProps) => {
     const timeSlot = `${selectedHour}:${selectedMinute} ${selectedAMPM}`;
 
     try {
-      const response = await fetch('https://appsail-50024466061.development.catalystappsail.in/api/bookings', {
+      const response = await fetch('https://phoneixboatingbackend.onrender.com/api/bookings', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

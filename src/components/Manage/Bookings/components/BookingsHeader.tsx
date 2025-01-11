@@ -3,7 +3,7 @@ import { Calendar, Clock, Phone, User } from 'lucide-react';
 import { Toaster, toast } from 'sonner';
 
 // Define the base URL for the API
-const BASE_URL = "https://appsail-50024466061.development.catalystappsail.in/api/bookings";
+const BASE_URL = "https://phoneixboatingbackend.onrender.com/api/bookings";
 
 // Define an interface for the booking form
 interface BookingForm {
