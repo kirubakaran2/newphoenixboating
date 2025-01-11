@@ -58,7 +58,7 @@ export default defineConfig({
       '/api': {
         target: 'https://appsail-50024466061.development.catalystappsail.in', // Replace with your backend URL
         changeOrigin: true,
-        secure: false, // Use true if your backend uses HTTPS
+        secure: true, // Use true if your backend uses HTTPS
         rewrite: (path) => path.replace(/^\/api/, ''), // Optional: Remove `/api` prefix if not needed
       },
     },
