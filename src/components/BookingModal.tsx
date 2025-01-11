@@ -51,6 +51,10 @@ export const BookingModal = ({ isOpen, onClose }: BookingModalProps) => {
           phoneNumber: phone
         })
       });
+      if (!response.ok) {
+        console.error("Server error:", response.statusText);
+        return;
+      }
 
       const data = await response.json();
 
