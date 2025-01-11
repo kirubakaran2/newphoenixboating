@@ -2,21 +2,18 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      // Service worker configuration
       strategies: 'generateSW',
       injectRegister: 'auto',
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,jpg}'],
         cleanupOutdatedCaches: true,
-        sourcemap: true
+        sourcemap: true,
       },
-      // Manifest configuration
       manifest: {
         name: 'Phoenix Boating',
         short_name: 'Phoenix',
@@ -29,33 +26,41 @@ export default defineConfig({
           {
             src: '/icon-192x192.png',
             sizes: '192x192',
-            type: 'image/png'
-          },
-          {
-            src: '/icon-512x512.png',
-            sizes: '512x512',
-            type: 'image/png'
+            type: 'image/png',
           },
           {
             src: '/icon-512x512.png',
             sizes: '512x512',
             type: 'image/png',
-            purpose: 'maskable'
-          }
-        ]
+          },
+          {
+            src: '/icon-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable',
+          },
+        ],
       },
       devOptions: {
         enabled: true,
-        type: 'module'
-      }
-    })
+        type: 'module',
+      },
+    }),
   ],
   optimizeDeps: {
     exclude: ['lucide-react'],
   },
   server: {
     headers: {
-      'Service-Worker-Allowed': '/'
-    }
-  }
+      'Service-Worker-Allowed': '/',
+    },
+    proxy: {
+      '/api': {
+        target: 'https://appsail-50024466061.development.catalystappsail.in', // Replace with your backend URL
+        changeOrigin: true,
+        secure: false, // Use true if your backend uses HTTPS
+        rewrite: (path) => path.replace(/^\/api/, ''), // Optional: Remove `/api` prefix if not needed
+      },
+    },
+  },
 });
