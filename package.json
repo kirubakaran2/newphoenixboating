@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "proxy": "https://appsail-50024466061.development.catalystappsail.in",
+  "proxy": "https://phoneixboatingbackend.onrender.com",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

@@ -54,7 +54,7 @@ export default defineConfig({
     proxy: {
       // Target is your backend API
       '/api': {
-        target: 'https://appsail-50024466061.development.catalystappsail.in', 
+        target: 'https://phoneixboatingbackend.onrender.com', 
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
         configure: (proxy, options) => {
