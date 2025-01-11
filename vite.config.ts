@@ -52,10 +52,26 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '/api': 'https://appsail-50024466061.development.catalystappsail.in'
+      // Target is your backend API
+      '/api': {
+        target: 'https://appsail-50024466061.development.catalystappsail.in', 
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+        configure: (proxy, options) => {
+          proxy.on('error', (err, _req, _res) => {
+            console.log('error', err);
+          });
+          proxy.on('proxyReq', (proxyReq, req, _res) => {
+            console.log('Request sent to target:', req.method, req.url);
+          });
+          proxy.on('proxyRes', (proxyRes, req, _res) => {
+            console.log('Response received from target:', proxyRes.statusCode, req.url);
+          });
+        },
+        headers: {
+          'Service-Worker-Allowed': '/',
+        },
       },
-    headers: {
-      'Service-Worker-Allowed': '/',
     },
   },
 });
